@@ -1,0 +1,9 @@
+[Strings]
+ttime=`%HH:`%mm:`%ss_
+ddate=`%yy`%MM`%dd_
+date2=`%dd.`%MM.`%yyyy
+ddd=`%yyyy-`%MM-`%dd_
+bbb=Best regards.{n}John Doe
+kkind=Kind regards.{n}John Doe
+[Settings]
+SoundSetting=0
