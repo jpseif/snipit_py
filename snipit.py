@@ -195,12 +195,9 @@ def check_for_snippets():
     with log_lock:
         current_log = log
 
-    # Clean the log by removing any control characters or invisible space
-    clean_log = current_log.strip()
-
     # Print current buffer for debugging
     if debugging:
-        print(f"Current buffer: '{clean_log}'")
+        print(f"Current buffer: '{current_log}'")
 
     # Define word delimiters - characters that would appear before a snippet
     # when it's intentionally typed as a standalone entity
@@ -209,15 +206,19 @@ def check_for_snippets():
     # Check each snippet
     for snippet in key_array:
         # Only replace if the snippet is at the end of the buffer
-        if clean_log.endswith(snippet):
+        if current_log.endswith(snippet):
             # Determine what character comes before the snippet
-            prefix_position = len(clean_log) - len(snippet) - 1
-            prefix_char = clean_log[prefix_position] if prefix_position >= 0 else ''
+            prefix_position = len(current_log) - len(snippet) - 1
 
-            # Only trigger replacement if the snippet is preceded by a delimiter
-            # or if the snippet is the entire content of the buffer
-            if prefix_char in delimiters or prefix_position < 0:
+            # If snippet is at the beginning of the buffer or preceded by a delimiter
+            if prefix_position < 0 or (prefix_position >= 0 and current_log[prefix_position] in delimiters):
+                if debugging:
+                    print(f"Found valid snippet: '{snippet}' at end of buffer")
                 return snippet
+            else:
+                # This is a partial match (snippet within a word), don't expand
+                if debugging:
+                    print(f"Ignored snippet '{snippet}' within a word")
 
     return None
 
