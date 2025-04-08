@@ -32,7 +32,7 @@ sound_setting = 0
 last_key_time = time.time()
 input_timeout = 2.0  # 2 seconds timeout for keyboard input
 debugging = False  # Set to True to enable debug messages
-version = "v1.0.1 reset 2"
+version = "v1.0.2"
 
 # Initialize lock for thread safety
 log_lock = threading.Lock()
