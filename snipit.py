@@ -32,7 +32,10 @@ sound_setting = 0
 last_key_time = time.time()
 input_timeout = 2.0  # 2 seconds timeout for keyboard input
 debugging = False  # Set to True to enable debug messages
-version = "v1.0.1"
+version = "v1.0.3"
+ctrl_pressed = False
+alt_pressed = False
+shift_pressed = False
 
 # Initialize lock for thread safety
 log_lock = threading.Lock()
@@ -163,36 +166,83 @@ def get_replacement(snippet):
         print(f"Error getting replacement for '{snippet}': {e}")
         return None
 
+# def check_for_snippets():
+#     """Check if the current input buffer contains any snippet"""
+#     global log, log_lock
+#
+#     with log_lock:
+#         current_log = log
+#
+#     # Clean the log by removing any control characters or invisible space
+#     clean_log = current_log.strip()
+#
+#     # Print current buffer for debugging
+#     if debugging:
+#         print(f"Current buffer: '{clean_log}'")
+#
+#     # Check each snippet
+#     for snippet in key_array:
+#         # Check if the snippet is in the buffer
+#         # Try both exact matching and checking if it's at the end of the buffer
+#         if snippet == clean_log or clean_log.endswith(snippet):
+#             return snippet
+#
+#     return None
 def check_for_snippets():
-    """Check if the current input buffer contains any snippet"""
+    """Check if the current input buffer ends with any snippet preceded by word boundary"""
     global log, log_lock
-    
+
     with log_lock:
         current_log = log
-        
+
     # Clean the log by removing any control characters or invisible space
     clean_log = current_log.strip()
-    
+
     # Print current buffer for debugging
     if debugging:
         print(f"Current buffer: '{clean_log}'")
-    
+
+    # Define word delimiters - characters that would appear before a snippet
+    # when it's intentionally typed as a standalone entity
+    delimiters = [' ', '\t', '\n', '', ';', '.', ',', '!', '?', '-', '_', '(', ')', '[', ']', '{', '}']
+
     # Check each snippet
     for snippet in key_array:
-        # Check if the snippet is in the buffer
-        # Try both exact matching and checking if it's at the end of the buffer
-        if snippet == clean_log or clean_log.endswith(snippet):
-            return snippet
-            
+        # Only replace if the snippet is at the end of the buffer
+        if clean_log.endswith(snippet):
+            # Determine what character comes before the snippet
+            prefix_position = len(clean_log) - len(snippet) - 1
+            prefix_char = clean_log[prefix_position] if prefix_position >= 0 else ''
+
+            # Only trigger replacement if the snippet is preceded by a delimiter
+            # or if the snippet is the entire content of the buffer
+            if prefix_char in delimiters or prefix_position < 0:
+                return snippet
+
     return None
+
+def update_modifier_state(key, is_pressed):
+    """Update the state of modifier keys"""
+    global ctrl_pressed, alt_pressed, shift_pressed
+
+    if key == 'ctrl':
+        ctrl_pressed = is_pressed
+    elif key == 'alt':
+        alt_pressed = is_pressed
+    elif key == 'shift':
+        shift_pressed = is_pressed
 
 def process_key(key):
     """Process each keystroke and check for snippet matches"""
-    global log, last_key_time, log_lock
+    global log, last_key_time, log_lock, ctrl_pressed, alt_pressed
     
     try:
         # Update the last key time
         last_key_time = time.time()
+
+        # Skip processing if Ctrl or Alt is pressed
+        if ctrl_pressed or alt_pressed:
+            return
         
         # Filter out special keys that should not be part of snippets
         if len(key) > 1 and key not in ['space', 'backspace', 'tab']:
@@ -320,10 +370,26 @@ def main():
         # Start the timeout checker in a separate thread
         timeout_thread = threading.Thread(target=check_timeout, daemon=True)
         timeout_thread.start()
-        
+
+        # Define callbacks for key press and release events for modifier keys
+        def on_modifier_press(event):
+            if event.name in ['ctrl', 'alt', 'shift']:
+                update_modifier_state(event.name, True)
+
+        def on_modifier_release(event):
+            if event.name in ['ctrl', 'alt', 'shift']:
+                update_modifier_state(event.name, False)
+
+        keyboard.on_press(on_modifier_press)
+        keyboard.on_release(on_modifier_release)
+
         # Define a callback function for key press events
         def on_key_press(event):
             try:
+                # Skip if modifiers are pressed
+                if ctrl_pressed or alt_pressed:
+                    return
+
                 # Get the key value, handling special characters correctly
                 if hasattr(event, 'name') and event.name:
                     key = event.name
@@ -331,14 +397,14 @@ def main():
                     key = event.char
                 else:
                     key = ""
-                
+
                 if key:  # Only process if we got a valid key
                     process_key(key)
             except Exception as e:
                 print(f"Error in key press callback: {e}")
                 if debugging:
                     traceback.print_exc()
-        
+
         # Start keyboard listener with the callback
         keyboard.on_press(on_key_press)
         
