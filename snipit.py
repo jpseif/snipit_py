@@ -32,7 +32,7 @@ sound_setting = 0
 last_key_time = time.time()
 input_timeout = 2.0  # 2 seconds timeout for keyboard input
 debugging = True  # Set to True to enable debug messages
-version = "v1.0.3a"
+version = "v1.0.3b"
 ctrl_pressed = False
 alt_pressed = False
 shift_pressed = False
@@ -166,61 +166,62 @@ def get_replacement(snippet):
         print(f"Error getting replacement for '{snippet}': {e}")
         return None
 
-# def check_for_snippets():
-#     """Check if the current input buffer contains any snippet"""
-#     global log, log_lock
-#
-#     with log_lock:
-#         current_log = log
-#
-#     # Clean the log by removing any control characters or invisible space
-#     clean_log = current_log.strip()
-#
-#     # Print current buffer for debugging
-#     if debugging:
-#         print(f"Current buffer: '{clean_log}'")
-#
-#     # Check each snippet
-#     for snippet in key_array:
-#         # Check if the snippet is in the buffer
-#         # Try both exact matching and checking if it's at the end of the buffer
-#         if snippet == clean_log or clean_log.endswith(snippet):
-#             return snippet
-#
-#     return None
 def check_for_snippets():
-    """Check if the current input buffer ends with any snippet preceded by word boundary"""
+    """Check if the current input buffer contains any snippet"""
     global log, log_lock
 
     with log_lock:
         current_log = log
 
+    # Clean the log by removing any control characters or invisible space
+    clean_log = current_log.strip()
+
     # Print current buffer for debugging
     if debugging:
-        print(f"Current buffer: '{current_log}'")
-
-    # Define word delimiters - characters that would appear before a snippet
-    # when it's intentionally typed as a standalone entity
-    delimiters = [' ', '\t', '\n', '', ';', '.', ',', '!', '?', '-', '_', '(', ')', '[', ']', '{', '}']
+        print(f"Current buffer: '{clean_log}'")
 
     # Check each snippet
     for snippet in key_array:
-        # Only replace if the snippet is at the end of the buffer
-        if current_log.endswith(snippet):
-            # Determine what character comes before the snippet
-            prefix_position = len(current_log) - len(snippet) - 1
-
-            # If snippet is at the beginning of the buffer or preceded by a delimiter
-            if prefix_position < 0 or (prefix_position >= 0 and current_log[prefix_position] in delimiters):
-                if debugging:
-                    print(f"Found valid snippet: '{snippet}' at end of buffer")
-                return snippet
-            else:
-                # This is a partial match (snippet within a word), don't expand
-                if debugging:
-                    print(f"Ignored snippet '{snippet}' within a word")
+        # Check if the snippet is in the buffer
+        # Try both exact matching and checking if it's at the end of the buffer
+        if snippet == clean_log or clean_log.endswith(snippet):
+            return snippet
 
     return None
+
+# def check_for_snippets():
+#     """Check if the current input buffer ends with any snippet preceded by word boundary"""
+#     global log, log_lock
+#
+#     with log_lock:
+#         current_log = log
+#
+#     # Print current buffer for debugging
+#     if debugging:
+#         print(f"Current buffer: '{current_log}'")
+#
+#     # Define word delimiters - characters that would appear before a snippet
+#     # when it's intentionally typed as a standalone entity
+#     delimiters = [' ', '\t', '\n', '', ';', '.', ',', '!', '?', '-', '_', '(', ')', '[', ']', '{', '}']
+#
+#     # Check each snippet
+#     for snippet in key_array:
+#         # Only replace if the snippet is at the end of the buffer
+#         if current_log.endswith(snippet):
+#             # Determine what character comes before the snippet
+#             prefix_position = len(current_log) - len(snippet) - 1
+#
+#             # If snippet is at the beginning of the buffer or preceded by a delimiter
+#             if prefix_position < 0 or (prefix_position >= 0 and current_log[prefix_position] in delimiters):
+#                 if debugging:
+#                     print(f"Found valid snippet: '{snippet}' at end of buffer")
+#                 return snippet
+#             else:
+#                 # This is a partial match (snippet within a word), don't expand
+#                 if debugging:
+#                     print(f"Ignored snippet '{snippet}' within a word")
+#
+#     return None
 
 def update_modifier_state(key, is_pressed):
     """Update the state of modifier keys"""
