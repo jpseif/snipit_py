@@ -32,7 +32,7 @@ sound_setting = 0
 last_key_time = time.time()
 input_timeout = 2.0  # 2 seconds timeout for keyboard input
 debugging = True  # Set to True to enable debug messages
-version = "v1.0.3b"
+version = "v1.0.3c"
 ctrl_pressed = False
 alt_pressed = False
 shift_pressed = False
@@ -223,28 +223,28 @@ def check_for_snippets():
 #
 #     return None
 
-def update_modifier_state(key, is_pressed):
-    """Update the state of modifier keys"""
-    global ctrl_pressed, alt_pressed, shift_pressed
-
-    if key == 'ctrl':
-        ctrl_pressed = is_pressed
-    elif key == 'alt':
-        alt_pressed = is_pressed
-    elif key == 'shift':
-        shift_pressed = is_pressed
+# def update_modifier_state(key, is_pressed):
+#     """Update the state of modifier keys"""
+#     global ctrl_pressed, alt_pressed, shift_pressed
+#
+#     if key == 'ctrl':
+#         ctrl_pressed = is_pressed
+#     elif key == 'alt':
+#         alt_pressed = is_pressed
+#     elif key == 'shift':
+#         shift_pressed = is_pressed
 
 def process_key(key):
     """Process each keystroke and check for snippet matches"""
-    global log, last_key_time, log_lock, ctrl_pressed, alt_pressed
+    global log, last_key_time, log_lock  #, ctrl_pressed, alt_pressed
     
     try:
         # Update the last key time
         last_key_time = time.time()
 
         # Skip processing if Ctrl or Alt is pressed
-        if ctrl_pressed or alt_pressed:
-            return
+        # if ctrl_pressed or alt_pressed:
+        #     return
         
         # Filter out special keys that should not be part of snippets
         if len(key) > 1 and key not in ['space', 'backspace', 'tab']:
@@ -389,8 +389,8 @@ def main():
         def on_key_press(event):
             try:
                 # Skip if modifiers are pressed
-                if ctrl_pressed or alt_pressed:
-                    return
+                # if ctrl_pressed or alt_pressed:
+                #     return
 
                 # Get the key value, handling special characters correctly
                 if hasattr(event, 'name') and event.name:
