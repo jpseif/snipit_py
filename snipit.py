@@ -32,7 +32,7 @@ sound_setting = 0
 last_key_time = time.time()
 input_timeout = 2.0  # 2 seconds timeout for keyboard input
 debugging = True  # Set to True to enable debug messages
-version = "v1.0.3c"
+version = "v1.0.3e"
 ctrl_pressed = False
 alt_pressed = False
 shift_pressed = False
@@ -155,9 +155,6 @@ def check_timeout():
             # Continue checking even if an error occurs
             time.sleep(0.1)
 
-        if debugging:
-            print("timeout")
-
 def get_replacement(snippet):
     """Get the replacement text for a snippet from the config file"""
     try:
@@ -195,6 +192,7 @@ def check_for_snippets():
         if snippet == clean_log or clean_log.endswith(snippet):
             return snippet
 
+    print("checked for snippet")
     return None
 
 # def check_for_snippets():
