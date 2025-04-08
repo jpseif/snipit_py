@@ -122,6 +122,9 @@ def create_default_ini():
     with open(input_file, 'w', encoding='utf-8') as f:
         config.write(f)
 
+    if debugging:
+        print("Default Input.ini created.")
+
 def play_sound():
     """Play a system beep sound if sound_setting is enabled"""
     if sound_setting == 1:
@@ -152,6 +155,9 @@ def check_timeout():
             # Continue checking even if an error occurs
             time.sleep(0.1)
 
+        if debugging:
+            print("timeout")
+
 def get_replacement(snippet):
     """Get the replacement text for a snippet from the config file"""
     try:
@@ -161,6 +167,8 @@ def get_replacement(snippet):
         
         if "Strings" in config and snippet in config["Strings"]:
             return config["Strings"][snippet]
+        if debugging:
+            print("get replacement")
         return None
     except Exception as e:
         print(f"Error getting replacement for '{snippet}': {e}")
@@ -327,6 +335,10 @@ def process_key(key):
                 # Reset the log
                 with log_lock:
                     log = ""
+
+        if debugging:
+            print("snippet processed")
+
     except Exception as e:
         print(f"Error processing key: {e}")
         if debugging:
@@ -374,41 +386,41 @@ def main():
         timeout_thread.start()
 
         # Define callbacks for key press and release events for modifier keys
-        def on_modifier_press(event):
-            if event.name in ['ctrl', 'alt', 'shift']:
-                update_modifier_state(event.name, True)
-
-        def on_modifier_release(event):
-            if event.name in ['ctrl', 'alt', 'shift']:
-                update_modifier_state(event.name, False)
-
-        keyboard.on_press(on_modifier_press)
-        keyboard.on_release(on_modifier_release)
+        # def on_modifier_press(event):
+        #     if event.name in ['ctrl', 'alt', 'shift']:
+        #         update_modifier_state(event.name, True)
+        #
+        # def on_modifier_release(event):
+        #     if event.name in ['ctrl', 'alt', 'shift']:
+        #         update_modifier_state(event.name, False)
+        #
+        # keyboard.on_press(on_modifier_press)
+        # keyboard.on_release(on_modifier_release)
 
         # Define a callback function for key press events
-        def on_key_press(event):
-            try:
-                # Skip if modifiers are pressed
-                # if ctrl_pressed or alt_pressed:
-                #     return
-
-                # Get the key value, handling special characters correctly
-                if hasattr(event, 'name') and event.name:
-                    key = event.name
-                elif hasattr(event, 'char') and event.char:
-                    key = event.char
-                else:
-                    key = ""
-
-                if key:  # Only process if we got a valid key
-                    process_key(key)
-            except Exception as e:
-                print(f"Error in key press callback: {e}")
-                if debugging:
-                    traceback.print_exc()
-
-        # Start keyboard listener with the callback
-        keyboard.on_press(on_key_press)
+        # def on_key_press(event):
+        #     try:
+        #         # Skip if modifiers are pressed
+        #         # if ctrl_pressed or alt_pressed:
+        #         #     return
+        #
+        #         # Get the key value, handling special characters correctly
+        #         if hasattr(event, 'name') and event.name:
+        #             key = event.name
+        #         elif hasattr(event, 'char') and event.char:
+        #             key = event.char
+        #         else:
+        #             key = ""
+        #
+        #         if key:  # Only process if we got a valid key
+        #             process_key(key)
+        #     except Exception as e:
+        #         print(f"Error in key press callback: {e}")
+        #         if debugging:
+        #             traceback.print_exc()
+        #
+        # # Start keyboard listener with the callback
+        # keyboard.on_press(on_key_press)
         
         # Keep the program running
         keyboard.wait()
