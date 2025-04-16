@@ -31,8 +31,8 @@ log = ""
 sound_setting = 0
 last_key_time = time.time()
 input_timeout = 2.0  # 2 seconds timeout for keyboard input
-debugging = True  # Set to True to enable debug messages
-version = "v1.0.3"
+debugging = False  # Set to True to enable debug messages
+version = "v1.0.4"
 
 # Initialize lock for thread safety
 log_lock = threading.Lock()
@@ -100,7 +100,6 @@ def read_ini_file():
         print(f"Error reading Input.ini: {e}")
         traceback.print_exc()
         # Create a default ini file in case of error
-        create_default_ini()
         key_array = ["ttime", "ddate"]  # Fallback to basic snippets
 
 def create_default_ini():
