@@ -410,6 +410,7 @@ def setup():
         keyboard.on_release_key('alt', on_modifier_release)
         keyboard.on_press_key('alt gr', on_modifier_press)
         keyboard.on_release_key('alt gr', on_modifier_release)
+        # test
         
         # Resume keyboard listener with the correct callback
         def on_key_press(event):
