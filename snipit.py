@@ -32,7 +32,7 @@ sound_setting = 0
 last_key_time = time.time()
 input_timeout = 2.0  # 2 seconds timeout for keyboard input
 debugging = False  # Set to True to enable debug messages
-version = "v1.0.2"
+version = "v1.0.3"
 
 # Initialize lock for thread safety
 log_lock = threading.Lock()
@@ -388,6 +388,7 @@ def setup():
                 if (keyboard.is_pressed('ctrl') or
                         keyboard.is_pressed('alt') or
                         keyboard.is_pressed('alt gr')):
+                    print("test")
                     if debugging:
                         print("Ignoring input while modifier key is pressed")
                     return
