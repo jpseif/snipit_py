@@ -31,7 +31,7 @@ log = ""
 sound_setting = 0
 last_key_time = time.time()
 input_timeout = 2.0  # 2 seconds timeout for keyboard input
-debugging = False  # Set to True to enable debug messages
+debugging = True  # Set to True to enable debug messages
 version = "v1.0.3"
 
 # Initialize lock for thread safety
@@ -324,6 +324,13 @@ def main():
         # Define a callback function for key press events
         def on_key_press(event):
             try:
+                # Check if any modifier key is pressed directly using keyboard.is_pressed
+                if (keyboard.is_pressed('ctrl') or
+                        keyboard.is_pressed('alt') or
+                        keyboard.is_pressed('alt gr')):
+                    if debugging:
+                        print("Ignoring input while modifier key is pressed")
+                    return
                 # Get the key value, handling special characters correctly
                 if hasattr(event, 'name') and event.name:
                     key = event.name
@@ -388,7 +395,6 @@ def setup():
                 if (keyboard.is_pressed('ctrl') or
                         keyboard.is_pressed('alt') or
                         keyboard.is_pressed('alt gr')):
-                    print("test")
                     if debugging:
                         print("Ignoring input while modifier key is pressed")
                     return
