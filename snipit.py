@@ -37,6 +37,11 @@ version = "v1.0.2"
 # Initialize lock for thread safety
 log_lock = threading.Lock()
 
+# Track modifier key states
+ctrl_pressed = False
+alt_pressed = False
+alt_gr_pressed = False
+
 def read_ini_file():
     """Read the Input.ini file and load snippets into key_array"""
     global key_array, sound_setting
@@ -378,10 +383,45 @@ def setup():
         
         # Restart the script
         restart_script()
+
+        # Define handlers for modifier key states
+        def on_modifier_press(event):
+            global ctrl_pressed, alt_pressed, alt_gr_pressed
+            if event.name == 'ctrl':
+                ctrl_pressed = True
+            elif event.name == 'alt':
+                alt_pressed = True
+            elif event.name == 'alt gr':
+                alt_gr_pressed = True
+
+        def on_modifier_release(event):
+            global ctrl_pressed, alt_pressed, alt_gr_pressed
+            if event.name == 'ctrl':
+                ctrl_pressed = False
+            elif event.name == 'alt':
+                alt_pressed = False
+            elif event.name == 'alt gr':
+                alt_gr_pressed = False
+
+        # Register handlers for modifier keys
+        keyboard.on_press_key('ctrl', on_modifier_press)
+        keyboard.on_release_key('ctrl', on_modifier_release)
+        keyboard.on_press_key('alt', on_modifier_press)
+        keyboard.on_release_key('alt', on_modifier_release)
+        keyboard.on_press_key('alt gr', on_modifier_press)
+        keyboard.on_release_key('alt gr', on_modifier_release)
         
         # Resume keyboard listener with the correct callback
         def on_key_press(event):
             try:
+                global ctrl_pressed, alt_pressed, alt_gr_pressed
+
+                # Skip processing if any modifier key is pressed
+                if ctrl_pressed or alt_pressed or alt_gr_pressed:
+                    if debugging:
+                        print("Ignoring input while modifier key is pressed")
+                    return
+
                 # Get the key value, handling special characters correctly
                 if hasattr(event, 'name') and event.name:
                     key = event.name
